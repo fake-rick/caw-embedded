@@ -26,5 +26,6 @@ int event_register(event_t* event, uint32_t main_code, uint32_t sub_code,
                    event_processer_cb cbfn);
 void event_wait_discover(event_t* event);
 void event_loop(event_t* event);
+int event_ping(event_t* event);
 
 #endif

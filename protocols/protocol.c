@@ -20,5 +20,12 @@ int protocol_header_recv(device_t* device, protocol_header_t* header) {
 
 int protocol_header_write(device_t* device, uint32_t main_code,
                           uint32_t sub_code, uint8_t* buf, uint32_t data_size) {
-
+  protocol_header_t header;
+  memcpy(header.magic, MAGIC, sizeof(MAGIC));
+  header.main_code = endian_u32(main_code);
+  header.sub_code = endian_u32(sub_code);
+  header.version = endian_u16(VERSION);
+  header.data_size = endian_u32(data_size);
+  if (device_write(device, &header, sizeof(protocol_header_t))) return -1;
+  return 0;
 }
