@@ -7,7 +7,7 @@
 #include "utils/endian.h"
 
 #define MAX_DELAY 0xFFFFFFFFU
-// #define MAX_DELAY 3000
+// #define MAX_DELAY 100
 
 void device_init(device_t* device, void* handle, read_write_fn read,
                  read_write_fn write, reset_fn reset) {
