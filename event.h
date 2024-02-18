@@ -6,8 +6,9 @@
 #include "device.h"
 
 #define MAX_EVENT_CHAIN 20
+#define MAX_BUF_SIZE 128
 
-typedef int (*event_processer_cb)(device_t*);
+typedef int (*event_processer_cb)(device_t*, uint8_t*);
 typedef uint32_t (*get_tick_fn)();
 
 typedef struct _event_chain_t {
@@ -24,11 +25,12 @@ typedef struct _event_t {
   uint32_t ping_tick;
 } event_t;
 
-void event_init(event_t* event, device_t* device, get_tick_fn get_tick);
-int event_register(event_t* event, uint32_t main_code, uint32_t sub_code,
+void event_init(device_t* device);
+int event_register(uint32_t main_code, uint32_t sub_code,
                    event_processer_cb cbfn);
-void event_wait_discover(event_t* event);
-void event_loop(event_t* event);
-void event_timer(event_t* event);
+void event_wait_discover();
+void event_run();
+
+void event_timer();
 
 #endif

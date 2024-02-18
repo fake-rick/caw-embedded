@@ -18,6 +18,15 @@ int protocol_header_recv(device_t* device, protocol_header_t* header) {
   return 0;
 }
 
+int protocol_header_parse(protocol_header_t* header) {
+  if (memcmp(header->magic, MAGIC, sizeof(MAGIC))) return -1;
+  header->main_code = endian_u32(header->main_code);
+  header->sub_code = endian_u32(header->sub_code);
+  header->version = endian_u16(header->version);
+  if (VERSION != header->version) return -1;
+  header->data_size = endian_u32(header->data_size);
+}
+
 int protocol_header_write(device_t* device, uint32_t main_code,
                           uint32_t sub_code, uint8_t* buf, uint32_t data_size) {
   protocol_header_t header;

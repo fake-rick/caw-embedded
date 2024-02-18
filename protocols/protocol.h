@@ -17,6 +17,7 @@ typedef struct _protocol_header_t {
 #pragma pack()
 
 int protocol_header_recv(device_t* device, protocol_header_t* header);
+int protocol_header_parse(protocol_header_t* header);
 int protocol_header_write(device_t* device, uint32_t main_code,
                           uint32_t sub_code, uint8_t* buf, uint32_t data_size);
 #endif

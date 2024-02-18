@@ -25,3 +25,7 @@ int discover_check_magic(const device_t* device) {
   device_read(device, buf, sizeof(buf));
   return !memcmp(buf, DISCOVER_MAGIC, sizeof(DISCOVER_MAGIC));
 }
+
+int discover_check_magic_buf(const uint8_t* buf) {
+  return !memcmp(buf, DISCOVER_MAGIC, sizeof(DISCOVER_MAGIC));
+}
