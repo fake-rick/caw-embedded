@@ -8,9 +8,10 @@
 
 #ifdef USE_STM32_UART
 
-int reset_usart_device() {
-  HAL_UART_DeInit(&huart1);
-  HAL_UART_Init(&huart1);
+int reset_usart_device(void* handle) {
+  HAL_UART_DeInit(handle);
+  HAL_UART_Init(handle);
+  // device_abort(handle);
 }
 #endif
 
@@ -25,7 +26,6 @@ void device_init(device_t* device) {
 #else
   device->read = HAL_UART_Receive;
 #endif
-
   device->write = HAL_UART_Transmit;
   device->reset = reset_usart_device;
 #endif
@@ -54,6 +54,14 @@ int device_write(device_t* device, uint8_t* buf, uint32_t size) {
 int device_read(device_t* device, uint8_t* buf, uint32_t size) {
   assert(device->read);
   return read(device, buf, size);
+}
+
+int device_abort(device_t* device) {
+#ifdef USE_IT
+  HAL_UART_Abort_IT(&huart1);
+#else
+  HAL_UART_Abort(&huart1);
+#endif
 }
 
 int device_reset(device_t* device) {

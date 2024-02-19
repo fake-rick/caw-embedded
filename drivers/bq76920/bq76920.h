@@ -17,6 +17,7 @@ typedef struct _bq76920_t {
   float cell_voltage[5];
   float v_pack;
   float current;
+  float temperature;
 } bq76920_t;
 
 typedef enum _bq76920_reg_map_e {
@@ -181,6 +182,7 @@ int bq76920_shutdown(bq76920_t* bq);
 int bq76920_update_pack_voltage(bq76920_t* bq);
 int bq76920_update_current(bq76920_t* bq);
 int bq76920_update_balance_cell(bq76920_t* bq);
+int bq76920_update_temperature(bq76920_t* bq);
 int bq76920_step(bq76920_t* bq);
 
 #endif

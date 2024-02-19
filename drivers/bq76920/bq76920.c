@@ -34,7 +34,7 @@ int bq76920_init(bq76920_t* bq, I2C_HandleTypeDef* i2c) {
 
   _I2C_WRITE_BYTE(bq, SYS_STAT, 0xff);
   _I2C_WRITE_BYTE(bq, CC_CFG, 0x19);
-  _I2C_WRITE_BYTE(bq, SYS_CTRL1, 0x10);
+  _I2C_WRITE_BYTE(bq, SYS_CTRL1, 0x18);
   _I2C_WRITE_BYTE(bq, SYS_CTRL2, 0x43);
 
   uint8_t adc_gain_reg[2];
@@ -233,9 +233,24 @@ int bq76920_update_balance_cell(bq76920_t* bq) {
   return 0;
 }
 
+int bq76920_update_temperature(bq76920_t* bq) {
+  uint8_t reg[2] = {0u, 0u};
+  _I2C_READ_BYTE(bq, TS1_LO, &reg[0]);
+  _I2C_READ_BYTE(bq, TS1_HI, &reg[1]);
+  int raw_data = (int16_t)((reg[1] << 8) | reg[0]);
+
+  int thermistorBetaValue = 3434;
+  uint32_t vtsx = raw_data * 0.382;  // mV
+  uint32_t rts = 10000.0 * vtsx / (3300.0 - vtsx);
+  float tmp = 1.0 / (1.0 / (273.15 + 25) +
+                     1.0 / thermistorBetaValue * log(rts / 10000.0));
+  bq->temperature = (tmp - 273.15);
+}
+
 int bq76920_step(bq76920_t* bq) {
   bq76920_update_cell_voltage(bq);
   bq76920_update_pack_voltage(bq);
   bq76920_update_current(bq);
+  bq76920_update_temperature(bq);
   return 0;
 }

@@ -58,13 +58,14 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
                                   sizeof(DISCOVER_MAGIC));
         return;
       }
+      event_handle.ping_tick = event_handle.get_tick();
       discover(event_handle.device);
+
       recv_state = uart_it_state_receive_protocol_header;
       event_handle.device->read(UART_HANDLE, &protocol_header,
                                 sizeof(protocol_header_t));
       return;
     }
-
     /// 协议头接收解析
     if (recv_state == uart_it_state_receive_protocol_header) {
       if (protocol_header_parse(&protocol_header)) {
@@ -73,7 +74,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
                                   sizeof(DISCOVER_MAGIC));
         return;
       }
-
       if (protocol_header.data_size <= 0) {
         dispatch(&protocol_header, 0);
         recv_state = uart_it_state_receive_protocol_header;
@@ -87,7 +87,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
                                 protocol_header.data_size);
       return;
     }
-
     /// 协议体接收解析
     if (recv_state == uart_it_state_receive_protocol_body) {
       dispatch(&protocol_header, uart_recv_buf);
@@ -108,6 +107,7 @@ void event_run() {
 void event_run() {
   for (;;) {
     event_wait_discover(&event_handle);
+    event_handle.ping_tick = event_handle.get_tick();
     for (;;) {
       protocol_header_t header;
       if (protocol_header_recv(event_handle.device, &header)) {
@@ -160,7 +160,7 @@ void event_wait_discover() {
 }
 
 void event_timer() {
-  if (event_handle.get_tick() - event_handle.ping_tick >= 9000) {
+  if (event_handle.get_tick() - event_handle.ping_tick >= 10000) {
     device_reset(event_handle.device);
     event_run();
   }

@@ -33,5 +33,6 @@ void device_set_id(device_t* device, uint32_t device_id, uint32_t type_id);
 int device_write(device_t* device, uint8_t* buf, uint32_t size);
 int device_read(device_t* device, uint8_t* buf, uint32_t size);
 int device_reset(device_t* device);
+int device_abort(device_t* device);
 
 #endif
