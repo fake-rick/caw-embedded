@@ -20,6 +20,7 @@ typedef struct _event_chain_t {
 typedef struct _event_t {
   event_chain_t chains[MAX_EVENT_CHAIN];
   uint16_t chain_index;
+  uint16_t discover_count;
   device_t* device;
   get_tick_fn get_tick;
   uint32_t ping_tick;
@@ -28,9 +29,9 @@ typedef struct _event_t {
 void event_init(device_t* device);
 int event_register(uint32_t main_code, uint32_t sub_code,
                    event_processer_cb cbfn);
-void event_wait_discover();
+// void event_wait_discover();
 void event_run();
 
-void event_timer();
+void event_step();
 
 #endif

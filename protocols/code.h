@@ -15,13 +15,17 @@ typedef enum _sub_code_other_e {
 } sub_code_other_e;
 
 typedef enum _sub_code_system_e {
-  sub_code_system_ping = (uint32_t)0,
-  sub_code_system_pong = (uint32_t)1,
-  sub_code_system_log = (uint32_t)2,
+  sub_code_system_discover = (uint32_t)0,
+  sub_code_system_log = (uint32_t)1,
 } sub_code_system_e;
 
 typedef enum _sub_code_bms_e {
   sub_code_bms_info = (uint32_t)0,
 } sub_code_bms_e;
+
+typedef enum _sub_code_motor_e {
+  sub_code_motor_observation = (uint32_t)0,
+  sub_code_motor_load_params = (uint32_t)1,
+} sub_code_motor_e;
 
 #endif

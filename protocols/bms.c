@@ -1,11 +1,13 @@
 #include "bms.h"
 
 #include "code.h"
-#include "endian.h"
-#include "utils.h"
+#include "../utils/endian.h"
+#include "../utils/utils.h"
 
-void protocol_write_bms_info(device_t* device, protocol_bms_t* t) {
-  for (int i = 0; i < SIZEOF_ARRAY(t->cell_voltage); i++) {
+void protocol_write_bms_info(device_t *device, protocol_bms_t *t)
+{
+  for (int i = 0; i < SIZEOF_ARRAY(t->cell_voltage); i++)
+  {
     t->cell_voltage[i] = endian_u32(t->cell_voltage[i]);
   }
   t->voltage = endian_u32(t->voltage);

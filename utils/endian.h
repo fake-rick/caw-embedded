@@ -1,11 +1,3 @@
-/*
- * @Author: Rick rick@guaik.io
- * @Date: 2023-07-03 00:56:04
- * @LastEditors: Rick
- * @LastEditTime: 2023-08-13 14:58:50
- * @Description:
- */
-
 #ifndef __ENDIAN_H__
 #define __ENDIAN_H__
 #include <stdint.h>
