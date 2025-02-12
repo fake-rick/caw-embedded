@@ -1,9 +1,11 @@
 #include "./motor_load_params.h"
 #include "../log.h"
+#include "../protocols/protocol_motor.h"
+#include "motor_params.h"
 
-int count = 0;
+extern motor_params_t params;
 
-int motor_load_params_cb(device_t* device) {
-  debug("motor_load_params_cb %d", count++);
+int motor_load_params_cb(device_t* device, uint8_t* buf) {
+  protocol_write_motor_params(device, &params);
   return 0;
 }

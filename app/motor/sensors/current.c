@@ -7,14 +7,14 @@
 #define ADC_VOLTAGE 3.3
 #define ADC_RESOLUTION 4096.0
 
-static volatile uint32_t adc1_val = 0;
-static volatile uint32_t adc2_val = 0;
-static volatile float ia = 0.0;
-static volatile float ib = 0.0;
-static volatile float last_ia = 0.0;
-static volatile float last_ib = 0.0;
-static volatile float last_id = 0.0;
-static volatile float last_iq = 0.0;
+static uint32_t adc1_val = 0;
+static uint32_t adc2_val = 0;
+static float ia = 0.0;
+static float ib = 0.0;
+static float last_ia = 0.0;
+static float last_ib = 0.0;
+static float last_id = 0.0;
+static float last_iq = 0.0;
 
 #define _calc_ab_currents(a, b) ((a))
 

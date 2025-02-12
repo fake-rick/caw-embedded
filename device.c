@@ -49,19 +49,22 @@ int device_read(device_t* device, uint8_t* buf, uint16_t size) {
 }
 
 int device_write_buffer(device_t* device, const uint8_t* buf, uint16_t size) {
-  return buffer_write_block(&(device->tx_buf), buf, size);
+  if (0 != buffer_write_block(&(device->tx_buf), buf, size))
+    return -1;
+
+  block_t* block = buffer_get_read_block(&(device->tx_buf));
+  if (0 == block) {
+    return -1;
+  }
+  return device_write(device, block->buffer, block->block_size);
+
+  // return buffer_write_block(&(device->tx_buf), buf, size);
 }
 
 int device_event_step(device_t* device) {
-  block_t* block = buffer_get_block(&(device->tx_buf));
+  block_t* block = buffer_get_read_block(&(device->tx_buf));
   if (0 == block) {
     return -1;
   }
   return device_write(device, block->buffer, block->block_size);
 }
-
-// void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart) {
-//   if (huart == UART_HANDLE) {
-//     TRANSMIT_BUSY = 0;
-//   }
-// }

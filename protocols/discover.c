@@ -12,8 +12,8 @@ void discover(device_t* device) {
   protocol_header_init(&pack, main_code_system, sub_code_system_discover, 0,
                        sizeof(pack.body));
   device_write_buffer(device, &pack, sizeof(pack));
-  debug("discover > device_id: %d type_id: %d", device->device_id,
-        device->type_id);
+  // debug("discover > device_id: %d type_id: %d", device->device_id,
+  //       device->type_id);
 }
 
 // /**

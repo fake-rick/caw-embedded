@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-typedef struct _pid_t {
+typedef struct _pid_t{
   float p;           // 比例增益
   float i;           // 积分增益
   float d;           // 微分增益
@@ -16,8 +16,8 @@ typedef struct _pid_t {
   uint64_t timestamp_prev; // 记录最后一次时间戳
 } pid_t;
 
-void pid_init(pid_t* self, float p, float i, float d, float ramp, float limit);
-float pid_calc(pid_t* self, float error);
-void pid_reset(pid_t* self);
+void pid_init(pid_t *self, float p, float i, float d, float ramp, float limit);
+float pid_calc(pid_t *self, float error);
+void pid_reset(pid_t *self);
 
 #endif

@@ -12,10 +12,10 @@
 #include "current.h"
 #include "string.h"
 
-static event_t event_handle;
-static uint8_t uart_recv_buf[UART_RECV_BUF_SIZE];
+event_t event_handle;
+uint8_t uart_recv_buf[UART_RECV_BUF_SIZE];
 
-static int event_find_chain(uint32_t main_code, uint32_t sub_code) {
+int event_find_chain(uint32_t main_code, uint32_t sub_code) {
   assert(event_handle.chain_index <= MAX_EVENT_CHAIN);
   for (int i = 0; i < event_handle.chain_index; i++) {
     if (event_handle.chains[i].main_code == main_code &&
@@ -26,7 +26,7 @@ static int event_find_chain(uint32_t main_code, uint32_t sub_code) {
   return -1;
 }
 
-static void dispatch(protocol_header_t* header, uint8_t buf) {
+void dispatch(protocol_header_t* header, uint8_t* buf) {
   int chain_idx = event_find_chain(header->main_code, header->sub_code);
   if (chain_idx != -1) {
     event_handle.chains[chain_idx].callback(event_handle.device, buf);
@@ -34,7 +34,7 @@ static void dispatch(protocol_header_t* header, uint8_t buf) {
 }
 
 protocol_header_t protocol_header;
-static uint16_t recv_state;
+uint16_t recv_state;
 
 typedef enum _uart_it_state_e {
   uart_it_state_receive_protocol_header = 0,
@@ -49,26 +49,31 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
         error("parse protocol header failed");
       }
 
-      if (protocol_header.data_size <= 0) {
+      protocol_header.length =
+          protocol_header.length - sizeof(protocol_header_t);
+
+      if (0 == protocol_header.length) {
         dispatch(&protocol_header, 0);
         recv_state = uart_it_state_receive_protocol_header;
         event_handle.device->read(UART_HANDLE, &protocol_header,
                                   sizeof(protocol_header_t));
-        return;
+      } else if (protocol_header.length > 0) {
+        recv_state = uart_it_state_receive_protocol_body;
+        event_handle.device->read(UART_HANDLE, uart_recv_buf,
+                                  protocol_header.length);
+      } else {
+        error("protocol length error");
+        recv_state = uart_it_state_receive_protocol_header;
+        event_handle.device->read(UART_HANDLE, &protocol_header,
+                                  sizeof(protocol_header_t));
       }
-
-      recv_state = uart_it_state_receive_protocol_body;
-      event_handle.device->read(UART_HANDLE, uart_recv_buf,
-                                protocol_header.data_size);
-      return;
     }
     /// 协议体接收解析
-    if (recv_state == uart_it_state_receive_protocol_body) {
+    else if (recv_state == uart_it_state_receive_protocol_body) {
       dispatch(&protocol_header, uart_recv_buf);
       recv_state = uart_it_state_receive_protocol_header;
       event_handle.device->read(UART_HANDLE, &protocol_header,
                                 sizeof(protocol_header_t));
-      return;
     }
   }
 }
@@ -90,8 +95,7 @@ int event_register(uint32_t main_code, uint32_t sub_code,
                    event_processer_cb cbfn) {
   assert(event_handle.chain_index <= MAX_EVENT_CHAIN);
 
-  if (event_handle.chain_index == MAX_EVENT_CHAIN)
-    return -1;
+  if (event_handle.chain_index == MAX_EVENT_CHAIN) return -1;
 
   event_handle.chains[event_handle.chain_index].main_code = main_code;
   event_handle.chains[event_handle.chain_index].sub_code = sub_code;

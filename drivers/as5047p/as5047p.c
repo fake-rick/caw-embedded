@@ -1,4 +1,8 @@
 #include "./as5047p.h"
+
+#include <stdbool.h>
+#include <stdlib.h>
+
 #include "../macros/helper.h"
 #include "caw_config.h"
 #include "log.h"
@@ -18,6 +22,7 @@
 #define MIN_ELAPSED_TIME 0.000100
 
 #define _NSS(x) HAL_GPIO_WritePin(AS5047P_NSS_GPIO_Port, AS5047P_NSS_Pin, x)
+// #define _NSS(x) HAL_GPIO_WritePin(SPI1_NSS_GPIO_Port, SPI1_NSS_Pin, x)
 
 uint16_t _even_check(uint16_t val) {
   val ^= val >> 8;
@@ -53,6 +58,7 @@ int as5047p_init(as5047p_t* self, SPI_HandleTypeDef* spi) {
   self->velocity = 0.0;
   self->full_rotations = 0;
   self->vel_full_rotations = 0;
+  return 0;
 }
 
 uint16_t as5047p_get_raw_count(as5047p_t* self) {
@@ -128,3 +134,5 @@ int64_t as5047p_get_full_rotations(as5047p_t* self) {
 }
 
 float as5047p_get_mechanical_angle(as5047p_t* self) { return self->angle_prev; }
+
+uint16_t as5047p_get_cpr() { return CPR; }

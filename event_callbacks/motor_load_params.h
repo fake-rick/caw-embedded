@@ -3,6 +3,6 @@
 
 #include "../device.h"
 
-int motor_load_params_cb(device_t* device);
+int motor_load_params_cb(device_t* device, uint8_t* buf);
 
 #endif

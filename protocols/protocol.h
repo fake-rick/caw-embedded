@@ -11,7 +11,7 @@ typedef struct _protocol_header_t {
   uint32_t main_code;
   uint32_t sub_code;
   uint16_t version;
-  uint32_t data_size;
+  uint32_t length;
   uint8_t checksum;
 } protocol_header_t;
 #pragma pack()

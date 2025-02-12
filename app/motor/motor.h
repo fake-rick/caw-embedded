@@ -6,6 +6,7 @@
 #include "../sensors/current.h"
 #include "./control/lowpass_filter.h"
 #include "./control/pid.h"
+#include "./control/pll.h"
 #include "pwmx3.h"
 #include "tim.h"
 
@@ -31,16 +32,16 @@ typedef struct _motor_t {
 
   dq_voltage_t dq_voltage;
 
-  uint16_t pole_pairs;              // 极对数
-  volatile float shaft_angle;       // 轴角度
-  volatile float shaft_angle_sp;    // 目标角度
-  volatile float shaft_velocity;    // 轴速度
-  volatile float shaft_velocity_sp; // 目标速度
-  volatile float current_sp;        // 目标电流
-  volatile current_idq idq;
-  volatile float ua;
-  volatile float ub;
-  volatile float uc;
+  uint16_t pole_pairs;     // 极对数
+  float shaft_angle;       // 轴角度
+  float shaft_angle_sp;    // 目标角度
+  float shaft_velocity;    // 轴速度
+  float shaft_velocity_sp; // 目标速度
+  float current_sp;        // 目标电流
+  current_idq idq;
+  float ua;
+  float ub;
+  float uc;
   uint64_t open_loop_timestamp;
 
   float voltage_sensor_align;
@@ -55,6 +56,7 @@ typedef struct _motor_t {
   lowpass_filter_t* lpf_velocity;
   pid_t* pid_angle;
   lowpass_filter_t* lpf_angle;
+  pll_t* encoder_pll;
 } motor_t;
 
 int motor_init(motor_t* self, pwmx3_driver* driver, current_t* current_sensor,
@@ -63,7 +65,8 @@ int motor_init(motor_t* self, pwmx3_driver* driver, current_t* current_sensor,
                pid_t* pid_current_q, lowpass_filter_t* lpf_q,
                pid_t* pid_current_d, lowpass_filter_t* lpf_d,
                pid_t* pid_velocity, lowpass_filter_t* lpf_velocity,
-               pid_t* pid_angle, lowpass_filter_t* lpf_angle);
+               pid_t* pid_angle, lowpass_filter_t* lpf_angle,
+               pll_t* encoder_pll);
 int motor_step(motor_t* self, float target);
 float motor_velocity_open_loop(motor_t* self, float target);
 void motor_set_phase_voltage(motor_t* self, float uq, float ud,

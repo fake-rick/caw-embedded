@@ -16,6 +16,12 @@ float _normalize_angle(float angle) {
 }
 
 float _sensor_electrical_angle(motor_t* self) {
+  if (self->encoder_pll) {
+    return _normalize_angle((float)(self->sensor_direction) *
+                                (float)(self->pole_pairs) *
+                                pll_get_cpr_angle(self->encoder_pll) -
+                            self->zero_electrical_angle);
+  }
   return _normalize_angle((float)(self->sensor_direction) *
                               (float)(self->pole_pairs) *
                               as5047p_get_mechanical_angle(self->sensor) -
@@ -28,8 +34,9 @@ int motor_init(motor_t* self, pwmx3_driver* driver, current_t* current_sensor,
                pid_t* pid_current_q, lowpass_filter_t* lpf_q,
                pid_t* pid_current_d, lowpass_filter_t* lpf_d,
                pid_t* pid_velocity, lowpass_filter_t* lpf_velocity,
-               pid_t* pid_angle, lowpass_filter_t* lpf_angle) {
-  self->velocity_limit = 12.0;
+               pid_t* pid_angle, lowpass_filter_t* lpf_angle,
+               pll_t* encoder_pll) {
+  self->velocity_limit = 24.0;
   self->driver = driver;
   self->current_sensor = current_sensor;
   self->sensor = sensor;
@@ -59,16 +66,25 @@ int motor_init(motor_t* self, pwmx3_driver* driver, current_t* current_sensor,
   self->lpf_velocity = lpf_velocity;
   self->pid_angle = pid_angle;
   self->lpf_angle = lpf_angle;
+
+  self->encoder_pll = encoder_pll;
   return 0;
 }
 
 float motor_shaft_velocity(motor_t* self) {
+  if (self->encoder_pll) {
+    return (float)(self->sensor_direction) *
+           pll_get_velocity(self->encoder_pll);
+  }
   return (float)(self->sensor_direction) *
          lowpass_filter_calc(self->lpf_velocity,
                              as5047p_get_velocity(self->sensor));
 }
 
 float motor_shaft_angle(motor_t* self) {
+  if (self->encoder_pll) {
+    return (float)(self->sensor_direction) * pll_get_angle(self->encoder_pll);
+  }
   return (float)(self->sensor_direction) *
          lowpass_filter_calc(self->lpf_angle, as5047p_get_angle(self->sensor));
 }
@@ -82,9 +98,14 @@ void motor_sensor_calibrate_offsets(motor_t* self) {
 }
 
 int _exec(motor_t* self) {
-  if (0 != as5047p_update(self->sensor)) {
-    return -1;
+  if (self->encoder_pll) {
+    pll_update(self->encoder_pll, as5047p_get_raw_count(self->sensor));
+  } else {
+    if (0 != as5047p_update(self->sensor)) {
+      return -1;
+    }
   }
+
   self->electrical_angle = _sensor_electrical_angle(self);
   current_idq idq =
       current_get_dq_currents(self->current_sensor, self->electrical_angle);

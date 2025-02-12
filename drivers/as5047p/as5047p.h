@@ -27,4 +27,6 @@ float as5047p_get_angle(as5047p_t* self);
 int64_t as5047p_get_full_rotations(as5047p_t* self);
 float as5047p_get_mechanical_angle(as5047p_t* self);
 
+uint16_t as5047p_get_cpr();
+
 #endif

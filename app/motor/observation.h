@@ -9,14 +9,14 @@
 
 #pragma pack(1)
 typedef struct _motor_observation_t {
-  int32_t voltage[3];
-  int32_t current[2];
-  int32_t dq[2];
-  int32_t velocity;
-  int32_t angle;
-  uint32_t timestamp;
+  // float voltage[3];
+  float current[2];
+  float dq[2];
+  float velocity;
+  float angle;
+  uint32_t tick;
 } motor_observation_t;
-#pragma pack(0)
+#pragma pack()
 
 #pragma pack(1)
 typedef struct _motor_observation_pack_t {

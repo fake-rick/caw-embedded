@@ -26,6 +26,11 @@ typedef enum _sub_code_bms_e {
 typedef enum _sub_code_motor_e {
   sub_code_motor_observation = (uint32_t)0,
   sub_code_motor_load_params = (uint32_t)1,
+  sub_code_motor_init_params = (uint32_t)2,
+  sub_code_motor_flash_params = (uint32_t)3,
+  sub_code_motor_calibrate = (uint32_t)4,
+  sub_code_motor_set_params = (uint32_t)5,
+  sub_code_motor_load_params_reply = (uint32_t)1001,
 } sub_code_motor_e;
 
 #endif
