@@ -3,6 +3,7 @@
 #include "../control/lowpass_filter.h"
 #include "../control/pid.h"
 #include "../control/pll.h"
+#include "log.h"
 #include "stm32g4xx_hal.h"
 #include <string.h>
 
@@ -55,15 +56,20 @@ int motor_params_save(const motor_params_t* params) {
   flash.TypeErase = FLASH_TYPEERASE_PAGES;
   flash.Page = 127;
   flash.NbPages = 1;
-  HAL_FLASHEx_Erase(&flash, &err);
+  if (HAL_OK != HAL_FLASHEx_Erase(&flash, &err)) {
+    error("HAL_FLASHEx_Erase failed: %d", err);
+  }
 
   uint64_t buf[1 + sizeof(motor_params_t) / sizeof(uint64_t)];
   memcpy(buf, (void*)params, sizeof(motor_params_t));
 
   for (unsigned int i = 0; i < 1 + sizeof(motor_params_t) / sizeof(uint64_t);
        i++) {
-    HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD,
-                      FLASH_PARAM_BASE_ADDR + i * 8, buf[i]);
+    if (HAL_OK != HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD,
+                                    FLASH_PARAM_BASE_ADDR + i * 8, buf[i])) {
+      error("HAL_FLASH_Program failed: i=%d", i);
+      break;
+    }
   }
 
   HAL_FLASH_Lock();
