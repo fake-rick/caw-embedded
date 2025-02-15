@@ -5,13 +5,17 @@
 #include "./protocol.h"
 #include <stdint.h>
 
-#pragma pack(1)
-typedef struct _protocol_motor_params_t {
+typedef struct __packed _protocol_motor_params_body_t {
+  motor_params_t body;
+} protocol_motor_params_body_t;
+
+typedef struct __packed _protocol_motor_params_t {
   protocol_header_t header;
   motor_params_t body;
 } protocol_motor_params_t;
-#pragma pack()
 
 void protocol_write_motor_params(device_t* device, motor_params_t* params);
+void protocol_unpack_motor_params(motor_params_t* dst,
+                                  const protocol_motor_params_body_t* src);
 
 #endif

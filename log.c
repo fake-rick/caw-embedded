@@ -34,9 +34,9 @@ void log_write(const char* fmt, log_level_e level, const char* file, int line,
            func, tmp);
 #endif
   protocol_header_init(&log_protocol, main_code_system, sub_code_system_log, 0,
-                       strlen(log_protocol.buf));
+                       strlen(log_protocol.buf) + 1);
   device_write_buffer(global_log_object.dev, &log_protocol,
-                      sizeof(protocol_header_t) + strlen(log_protocol.buf));
+                      strlen(log_protocol.buf));
 }
 
 void _printf(const char* fmt, ...) {

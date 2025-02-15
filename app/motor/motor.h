@@ -75,5 +75,7 @@ void motor_sensor_calibrate_offsets(motor_t* self);
 void motor_align_sensor(motor_t* self);
 float motor_shaft_velocity(motor_t* self);
 float motor_shaft_angle(motor_t* self);
+void motor_set_control_type(motor_t* self, motor_control_type_e type);
+void motor_reset(motor_t* self);
 
 #endif

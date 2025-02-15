@@ -23,7 +23,6 @@ typedef struct _event_t {
   uint16_t discover_count;
   device_t* device;
   get_tick_fn get_tick;
-  uint32_t ping_tick;
 } event_t;
 
 void event_init(device_t* device);

@@ -36,7 +36,7 @@ int motor_init(motor_t* self, pwmx3_driver* driver, current_t* current_sensor,
                pid_t* pid_velocity, lowpass_filter_t* lpf_velocity,
                pid_t* pid_angle, lowpass_filter_t* lpf_angle,
                pll_t* encoder_pll) {
-  self->velocity_limit = 24.0;
+  self->velocity_limit = 3000.0;
   self->driver = driver;
   self->current_sensor = current_sensor;
   self->sensor = sensor;
@@ -239,4 +239,26 @@ void motor_set_phase_voltage(motor_t* self, float uq, float ud,
   self->uc = tc * self->driver->voltage_limit;
 
   pwmx3_driver_set_pwm(self->driver, self->ua, self->ub, self->uc);
+}
+
+void motor_set_control_type(motor_t* self, motor_control_type_e type) {
+  self->control_type = type;
+}
+
+void motor_reset(motor_t* self) {
+  self->velocity_limit = 3000.0;
+  self->dq_voltage.d = 0.0;
+  self->dq_voltage.q = 0.0;
+  self->shaft_angle = 0.0;
+  self->shaft_angle_sp = 0.0;
+  self->shaft_velocity = 0.0;
+  self->shaft_velocity_sp = 0.0;
+  self->current_sp = 0.0;
+  self->open_loop_timestamp = 0;
+  self->voltage_sensor_align = 3.0;
+  self->zero_electrical_angle = 0.0;
+  self->electrical_angle = 0.0;
+
+  self->idq.id = 0.0;
+  self->idq.iq = 0.0;
 }

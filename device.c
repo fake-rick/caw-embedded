@@ -17,6 +17,7 @@ static volatile uint8_t TRANSMIT_BUSY = 0;
 void device_init(device_t* device) {
   memset(device, 0, sizeof(device_t));
   buffer_init(&(device->tx_buf));
+  buffer_init(&(device->rx_buf));
   device->handle = UART_HANDLE;
   device->read = HAL_UART_Receive_DMA;
   device->write = HAL_UART_Transmit_DMA;
@@ -36,35 +37,28 @@ int device_write(device_t* device, const uint8_t* buf, uint16_t size) {
          ((UART_HandleTypeDef*)(device->handle))->gState)
     ;
   write(device, buf, size);
-
-  // while (RESET == __HAL_UART_GET_FLAG((UART_HandleTypeDef*)(device->handle),
-  //                                     UART_FLAG_TC)) {
-  // }
   return 0;
 }
 
 int device_read(device_t* device, uint8_t* buf, uint16_t size) {
   assert(device->read);
-  return read(device, buf, size);
+  while (HAL_UART_STATE_BUSY_RX ==
+         ((UART_HandleTypeDef*)(device->handle))->gState)
+    ;
+
+  read(device, buf, size);
+  return 0;
 }
 
 int device_write_buffer(device_t* device, const uint8_t* buf, uint16_t size) {
   if (0 != buffer_write_block(&(device->tx_buf), buf, size))
     return -1;
-
-  block_t* block = buffer_get_read_block(&(device->tx_buf));
-  if (0 == block) {
-    return -1;
-  }
-  return device_write(device, block->buffer, block->block_size);
-
-  // return buffer_write_block(&(device->tx_buf), buf, size);
+  return 0;
 }
 
-int device_event_step(device_t* device) {
-  block_t* block = buffer_get_read_block(&(device->tx_buf));
-  if (0 == block) {
-    return -1;
-  }
-  return device_write(device, block->buffer, block->block_size);
+int device_read_buffer(device_t* device, block_t* block, uint32_t offset,
+                       uint16_t size) {
+  block->block_size = size;
+  device_read(device, block->buffer + offset, size);
+  return 0;
 }

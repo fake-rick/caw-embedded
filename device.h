@@ -21,6 +21,7 @@ typedef struct _device_t {
   write_fn write;
   reset_fn reset;
   buffer_t tx_buf;
+  buffer_t rx_buf;
   void* handle;
 } device_t;
 
@@ -29,6 +30,8 @@ void device_set_id(device_t* device, uint32_t device_id, uint32_t type_id);
 int device_write(device_t* device, const uint8_t* buf, uint16_t size);
 int device_read(device_t* device, uint8_t* buf, uint16_t size);
 int device_write_buffer(device_t* device, const uint8_t* buf, uint16_t size);
+int device_read_buffer(device_t* device, block_t* block, uint32_t offset,
+                       uint16_t size);
 int device_event_step(device_t* device);
 
 #endif
