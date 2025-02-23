@@ -9,8 +9,8 @@ void discover(device_t* device) {
   discover_pack_t pack;
   pack.body.device_id = endian_u32(device->device_id);
   pack.body.type_id = endian_u32(device->type_id);
-  protocol_header_init(&pack, main_code_system, sub_code_system_discover, 0,
-                       sizeof(pack.body));
+  protocol_header_init(device, &pack, main_code_system,
+                       sub_code_system_discover, 0, sizeof(pack.body));
   device_write_buffer(device, &pack, sizeof(pack));
   // debug("discover > device_id: %d type_id: %d", device->device_id,
   //       device->type_id);

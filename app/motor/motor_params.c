@@ -58,6 +58,7 @@ int motor_params_save(const motor_params_t* params) {
   flash.NbPages = 1;
   if (HAL_OK != HAL_FLASHEx_Erase(&flash, &err)) {
     error("HAL_FLASHEx_Erase failed: %d", err);
+    return -1;
   }
 
   uint64_t buf[1 + sizeof(motor_params_t) / sizeof(uint64_t)];
@@ -68,7 +69,7 @@ int motor_params_save(const motor_params_t* params) {
     if (HAL_OK != HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD,
                                     FLASH_PARAM_BASE_ADDR + i * 8, buf[i])) {
       error("HAL_FLASH_Program failed: i=%d", i);
-      break;
+      return -1;
     }
   }
 

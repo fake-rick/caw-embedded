@@ -2,14 +2,15 @@
 #include "../../utils/endian.h"
 #include "./sensors/current.h"
 #include "log.h"
+#include "motor_params.h"
 #include "observation.h"
 #include "string.h"
 
 void motor_observation_write_pack(motor_t* motor, device_t* device) {
   motor_observation_pack_t pack;
 
-  protocol_header_init(&pack, main_code_motor, sub_code_motor_observation, 0,
-                       sizeof(pack.body));
+  protocol_header_init(device, &pack, main_code_motor,
+                       sub_code_motor_observation, 0, sizeof(pack.body));
 
   current_iab iab = current_get_last_iab();
   pack.body.current[0] = endian_f32(iab.ia);

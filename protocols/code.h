@@ -17,6 +17,7 @@ typedef enum _sub_code_other_e {
 typedef enum _sub_code_system_e {
   sub_code_system_discover = (uint32_t)0,
   sub_code_system_log = (uint32_t)1,
+  sub_code_system_discover_reply = (uint32_t)1000,
 } sub_code_system_e;
 
 typedef enum _sub_code_bms_e {

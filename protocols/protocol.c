@@ -13,6 +13,8 @@ int protocol_header_recv(device_t* device, protocol_header_t* header) {
     return -1;
   if (memcmp(header->magic, MAGIC, sizeof(MAGIC)))
     return -1;
+  header->device_type = endian_u32(device->type_id);
+  header->device_id = endian_u32(device->device_id);
   header->main_code = endian_u32(header->main_code);
   header->sub_code = endian_u32(header->sub_code);
   header->version = endian_u16(header->version);
@@ -27,7 +29,8 @@ int protocol_header_parse(protocol_header_t* header) {
     error("check magic failed");
     return -1;
   }
-
+  header->device_type = endian_u32(header->device_type);
+  header->device_id = endian_u32(header->device_id);
   header->main_code = endian_u32(header->main_code);
   header->sub_code = endian_u32(header->sub_code);
   header->version = endian_u16(header->version);
@@ -39,9 +42,12 @@ int protocol_header_parse(protocol_header_t* header) {
   return 0;
 }
 
-int protocol_header_init(protocol_header_t* header, uint32_t main_code,
-                         uint32_t sub_code, uint8_t* buf, uint32_t length) {
+int protocol_header_init(device_t* device, protocol_header_t* header,
+                         uint32_t main_code, uint32_t sub_code, uint8_t* buf,
+                         uint32_t length) {
   memcpy(header->magic, MAGIC, sizeof(MAGIC));
+  header->device_type = endian_u32(device->type_id);
+  header->device_id = endian_u32(device->device_id);
   header->main_code = endian_u32(main_code);
   header->sub_code = endian_u32(sub_code);
   header->version = endian_u16(VERSION);

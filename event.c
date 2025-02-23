@@ -35,53 +35,33 @@ void dispatch(protocol_header_t* header, uint8_t* buf) {
 protocol_header_t* protocol_header;
 uint16_t recv_state;
 
-typedef enum _uart_it_state_e {
-  uart_it_state_receive_protocol_header = 0,
-  uart_it_state_receive_protocol_body,
-} uart_it_state_e;
-
 void parse(block_t* block) {
   /// 协议解析
-  protocol_header_t* header = (protocol_header_t*)block->buffer;
-  dispatch(header, block->buffer + sizeof(protocol_header_t));
+  if (0 == protocol_header_parse((protocol_header_t*)block->buffer)) {
+    dispatch((protocol_header_t*)block->buffer,
+             block->buffer + sizeof(protocol_header_t));
+  }
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
-  if (recv_state == uart_it_state_receive_protocol_header) {
-    block_t* prev_block =
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef* huart, uint16_t size) {
+  if (huart == event_handle.device->handle) {
+    block_t* rx_buf_prev =
         buffer_get_prev_write_block(&(event_handle.device->rx_buf));
-    protocol_header = prev_block->buffer;
-    if (-1 == protocol_header_parse(protocol_header)) {
-      error("parse protocol header failed");
+    if (rx_buf_prev) {
+      rx_buf_prev->block_size = size;
+      rx_buf_prev->state = 1;
     }
-    if (0 == protocol_header->length) {
-      prev_block->state = 1;
-      block_t* block = buffer_get_write_block(&(event_handle.device->rx_buf));
-      device_read_buffer(event_handle.device, block, 0,
-                         sizeof(protocol_header_t));
-    } else {
-      recv_state = uart_it_state_receive_protocol_body;
-      prev_block->block_size += protocol_header->length;
-      device_read_buffer(event_handle.device, prev_block,
-                         sizeof(protocol_header_t), protocol_header->length);
+    block_t* rx_block = buffer_get_write_block(&(event_handle.device->rx_buf));
+    if (rx_block) {
+      device_read_buffer(event_handle.device, rx_block, 0, MAX_BUFFER_SIZE);
     }
-  } else if (recv_state == uart_it_state_receive_protocol_body) {
-    block_t* prev_block =
-        buffer_get_prev_write_block(&(event_handle.device->rx_buf));
-    prev_block->state = 1;
-    recv_state = uart_it_state_receive_protocol_header;
-    block_t* block = buffer_get_write_block(&(event_handle.device->rx_buf));
-    device_read_buffer(event_handle.device, block, 0,
-                       sizeof(protocol_header_t));
   }
 }
 
 void event_run() {
-  recv_state = uart_it_state_receive_protocol_header;
   block_t* rx_block = buffer_get_write_block(&(event_handle.device->rx_buf));
   if (rx_block) {
-    device_read_buffer(event_handle.device, rx_block, 0,
-                       sizeof(protocol_header_t));
+    device_read_buffer(event_handle.device, rx_block, 0, MAX_BUFFER_SIZE);
   }
 }
 

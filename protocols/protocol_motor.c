@@ -40,8 +40,8 @@ void protocol_write_motor_params(device_t* device, motor_params_t* params) {
   pack.body.angle.lpf_time_constant =
       endian_f32(params->angle.lpf_time_constant);
 
-  protocol_header_init(&pack, main_code_motor, sub_code_motor_load_params_reply,
-                       0, sizeof(pack.body));
+  protocol_header_init(device, &pack, main_code_motor,
+                       sub_code_motor_load_params_reply, 0, sizeof(pack.body));
   device_write_buffer(device, &pack, sizeof(pack));
 }
 

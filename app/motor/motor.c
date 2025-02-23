@@ -261,4 +261,8 @@ void motor_reset(motor_t* self) {
 
   self->idq.id = 0.0;
   self->idq.iq = 0.0;
+
+  self->ua = 0.0;
+  self->ub = 0.0;
+  self->uc = 0.0;
 }
